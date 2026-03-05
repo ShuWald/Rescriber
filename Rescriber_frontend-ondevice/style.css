@@ -1,0 +1,143 @@
+/* style.css */
+
+.highlight {
+  background-color: yellow;
+  color: black;
+}
+
+.pii-highlight-tooltip {
+  color: black;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 3px;
+  z-index: 1000;
+  max-width: 100%;
+  white-space: pre-wrap;
+  max-height: 150px;
+  overflow-y: scroll;
+}
+
+.replace-button,
+.detect-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1001; /* Ensure the button is above other elements */
+}
+
+.replace-button:hover,
+.detect-button:hover {
+  background-color: #0056b3;
+}
+
+.highlight-pii-in-displayed-message {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Prolific ID Popup Styles */
+#prolific-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1002;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  border-radius: 8px;
+}
+
+#prolific-popup h3 {
+  margin: 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#prolific-id-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#prolific-popup button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#prolific-submit-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+#prolific-cancel-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+#prolific-popup button:hover {
+  opacity: 0.9;
+}
+
+#prolific-popup div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#prolific-id-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: black; /* Ensures the text color is black */
+  background-color: white; /* Ensures the background is white */
+}
+
+/* Completion Code Popup Styles */
+#completion-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1002;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#completion-popup h3 {
+  margin: 0;
+  margin-bottom: 15px;
+}
+
+#completion-popup button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+}
+
+#completion-popup button:hover {
+  background-color: #45a049;
+}

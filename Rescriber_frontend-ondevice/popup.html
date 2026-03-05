@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extension Toggle</title>
+    <style>
+      body {
+        width: 200px; /* Set a specific width for the popup */
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+      #disableButton {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 10px; /* Add some margin at the bottom */
+      }
+      #disableButton.off {
+        background-color: #dc3545;
+      }
+      .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+        background-color: #ccc;
+        border-radius: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .toggle-knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 24px;
+        height: 24px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: left 0.3s;
+      }
+      #model-toggle.checked .toggle-knob {
+        left: 33px;
+      }
+      .toggle-label {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+        z-index: 1;
+        pointer-events: none;
+      }
+      #model-toggle.checked .toggle-switch {
+        background-color: #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rescriber</h1>
+    <button id="disableButton">Disable</button>
+    <!-- <div class="toggle-switch" id="model-toggle">
+      <div class="toggle-knob"></div>
+      <div class="toggle-label">1</div>
+    </div> -->
+    <!-- <input type="text" id="prolific-id" placeholder="Enter Prolific ID here" />
+    <button id="submitButton">Submit</button> -->
+    <script src="popup.js"></script>
+  </body>
+</html>

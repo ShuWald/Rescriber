@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extension Options</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .input-field {
+        display: block;
+        margin-bottom: 10px;
+      }
+      .save-button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .save-button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Extension Options</h1>
+    <label class="input-field">
+      <input type="radio" name="apiOption" value="own" checked /> Use your own
+      OpenAI API key:
+    </label>
+    <input type="text" id="apiKey" class="input-field" />
+
+    <label class="input-field">
+      <input type="radio" name="apiOption" value="provided" /> Use provided key
+      (testing only)
+    </label>
+
+    <button id="saveButton" class="save-button">Save</button>
+
+    <script src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Rescriber",
+  "version": "1.0",
+  "description": "An extension that revises PII.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content_helper.js", "content.js"],
+      "css": ["style.css", "ui.css"],
+      "type": "module"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "images/16.png"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "openai.js",
+        "ondevice.js",
+        "replacePanel.js",
+        "ui.css",
+        "buttonWidget.js",
+        "getProvidedApiKey.js",
+        "images/check4.png",
+        "images/magnifier5.png",
+        "images/revert.jpg",
+        "images/code-icon.png",
+        "images/user-icon.png"
+      ],
+      "matches": ["https://chatgpt.com/*"]
+    }
+  ]
+}
