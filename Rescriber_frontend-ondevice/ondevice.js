@@ -1,49 +1,54 @@
-export async function getOnDeviceResponseDetect(userMessage, onResultCallback) {
-  const response = await fetch("https://localhost:5331/detect", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message: userMessage }),
-  });
+function streamViaBackground(url, body, onChunk) {
+  return new Promise((resolve, reject) => {
+    const port = chrome.runtime.connect({ name: "stream" });
+    let buffer = "";
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n").filter((line) => line.trim() !== "");
-    for (const line of lines) {
-      try {
-        const jsonObject = JSON.parse(line);
-        if (jsonObject.results) {
-          await onResultCallback(jsonObject.results);
-        }
-      } catch (e) {
-        console.error("Error parsing JSON:", e);
+    port.onMessage.addListener(async (msg) => {
+      if (msg.error) {
+        port.disconnect();
+        reject(new Error(msg.error));
+        return;
       }
-    }
+      if (msg.done) {
+        port.disconnect();
+        resolve();
+        return;
+      }
+      buffer += msg.chunk;
+      const lines = buffer.split("\n").filter((l) => l.trim() !== "");
+      // keep last incomplete line in buffer
+      const lastChar = msg.chunk[msg.chunk.length - 1];
+      buffer = lastChar === "\n" ? "" : lines.pop() || "";
+      for (const line of lines) {
+        try {
+          const jsonObject = JSON.parse(line);
+          if (jsonObject.results) await onChunk(jsonObject.results);
+        } catch (e) {
+          console.error("Error parsing JSON:", e);
+        }
+      }
+    });
 
-    // 清空 buffer
-    buffer = "";
-  }
+    port.postMessage({ url, body });
+  });
+}
+
+export async function getOnDeviceResponseDetect(userMessage, onResultCallback) {
+  await streamViaBackground(
+    "https://localhost:5331/detect",
+    { message: userMessage },
+    onResultCallback
+  );
 }
 
 export async function getOnDeviceResponseCluster(userMessageCluster) {
-  const response = await fetch("https://localhost:5331/cluster", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message: userMessageCluster }),
+  const result = await chrome.runtime.sendMessage({
+    type: "fetch",
+    url: "https://localhost:5331/cluster",
+    body: { message: userMessageCluster },
   });
-  const data = await response.json();
-  const resultString = data.results;
-  return data.results;
+  if (result.error) throw new Error(result.error);
+  return result.data.results;
 }
 
 export async function getOnDeviceAbstractResponse(
@@ -55,38 +60,9 @@ export async function getOnDeviceAbstractResponse(
   const userMessage = `<Text>${currentMessage}</Text>\n<ProtectedInformation>${abstractList.join(
     ", "
   )}</ProtectedInformation>`;
-  const response = await fetch("https://localhost:5331/abstract", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message: userMessage }),
-  });
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-
-    // Process each line of the response
-    const lines = buffer.split("\n").filter((line) => line.trim() !== "");
-    for (const line of lines) {
-      try {
-        const jsonObject = JSON.parse(line);
-        if (jsonObject.results) {
-          // Call the callback with the current results
-          await onResultCallback(jsonObject.results);
-        }
-      } catch (e) {
-        console.error("Error parsing JSON chunk:", e);
-      }
-    }
-
-    buffer = "";
-  }
+  await streamViaBackground(
+    "https://localhost:5331/abstract",
+    { message: userMessage },
+    onResultCallback
+  );
 }

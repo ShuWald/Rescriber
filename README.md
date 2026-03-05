@@ -1,1 +1,3 @@
 Monorepo combining [Rescriber_backend](https://github.com/PEACH-Research-Lab/Rescriber_backend) and [Rescriber_frontend_ondevice](https://github.com/PEACH-Research-Lab/Rescriber_frontend_ondevice).
+
+   - **If the extension stops responding mid-session** , especially after re-installing or updating it ("Extension Content Invalidated" error in console logs), simply refresh the ChatGPT tab to restore it.
