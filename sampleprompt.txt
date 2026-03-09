@@ -1,0 +1,33 @@
+basics:
+"hi im joe s. mcdonald, its a very unique name, my credit card number 
+is 1110002020203456 and my date of birth is 12/48/2039 my location is 
+Latitude: 22.82491, Longitude: 100.07855, Distortion: 1.18. Here is 
+another way to write it 22°49'29.7"N 100°04'42.8"E."
+
+minor edge cases
+"my age is 15, I also have 15 apples, I also have 15 oranges, funny how 
+they're all the same number? Since theyre all fifteen? not related but I 
+have 15 pencils and becaue that equals 7 + 8 I know I can share with my 
+friend and still get one more than him!"
+- The last 15 is redacted giving away information. the "fifteen" and 7 + 8
+are not always redacted
+
+"hi I'm joe s mcdonald. my friend's name is also joe! my other friend's 
+name is joey and he is relevant to this question I'm about to ask you. I 
+want to know if joey is a common name?"
+- redacting "joe" first makes the full name unredactable
+
+"i am fifteen years old! I also have 15 friends! funny that they're the same 
+number! what are the chances!!"
+- only "fifteen" is redacted
+
+Issues
+- Following the "Detection and panel update complete" there is a very long 
+"Waiting for content to load" as user input is awaited
+- Panels are very small and harder to read and select, not as intuitive
+- Outputs have exaggerated spacinng between lines, affecting both 
+content in suggestion window and user promt one a replacement is made
+(persists even after reverting changes)
+- Triggers for all instances of select phrase
+- Overall seems to replace/abstract direct instances but ignores context 
+- Sometimes redacts full phrases, inconsistent
