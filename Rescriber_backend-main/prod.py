@@ -44,7 +44,10 @@ system_prompts = {
     "abstract": '''Rewrite the text to abstract the protected information, without changing other parts. For example:
         Input: <Text>I graduated from CMU, and I earn a six-figure salary. Today in the office...</Text>
         <ProtectedInformation>CMU, Today</ProtectedInformation>
-        Output JSON: {"results": [{"protected": "CMU", "abstracted":"a prestigious university"}, {"protected": "Today", "abstracted":"Recently"}}] Please use "results" as the main key in the JSON object.'''
+        Output JSON: {"results": [{"protected": "CMU", "abstracted":"a prestigious university"}, {"protected": "Today", "abstracted":"Recently"}}] Please use "results" as the main key in the JSON object.
+    ''', 
+    "cluster":'''dunno yet''', 
+    "abstract":
 }
 
 
