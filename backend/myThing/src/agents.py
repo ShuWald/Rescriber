@@ -1,7 +1,10 @@
+from langchain.agents import AgentState
+from langchain.agents.middleware import AgentMiddleware
 from langchain.agents import create_agent
+from alltools import *
+import ollama
 
-model_type: str = "gemini-3-flash"
-model_names = []
+model_type: str = "gemini-3-flash" # Provide ollama option with llama3 model
 model_prompts = {
     "detect": '''You an expert in cybersecurity and data privacy. You are now tasked to detect PII from the given text, using the following taxonomy only:
 
@@ -39,4 +42,20 @@ model_prompts = {
     '''
 }
 
-agent = create_agent(model_type, tools=None)
+class CustomState(AgentState):
+    original_message: str = ""
+    detected_pii: list = []
+    current_message: str = ""
+
+class CustomMiddleware(AgentMiddleware):
+    state_schema = CustomState
+    tools = [] # Add tools, probably using a @wrap_tool_call
+    # Include @dynamic_prompt tool if debugging mode is on
+
+#loop agents through models dict? or just define noramlly
+agent = create_agent(
+    model_type, 
+    name = "?",
+    temperature = 0, 
+    tools=None #Will add tools later
+) 
