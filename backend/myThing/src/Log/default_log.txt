@@ -1,0 +1,1 @@
+[DETECT->SIMPLE] Parsed result count: 1

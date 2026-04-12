@@ -2,3 +2,5 @@
 .env
 __pycache__/
 timing.txt
+myThing/src/Log/
+myThing/src/__pycache__/
