@@ -32,14 +32,13 @@ class CustomMiddleware(AgentMiddleware):
 
 base_llm = init_chat_model(default_model_type, model_provider=default_model_provider)
 
-#loop agents through models dict? or just define noramlly
-agent = create_agent(
-    base_llm,
-    system_prompt=model_prompts.get("simple", ""),
-    tools=None, #Will add tools later
-    name="simple"
-) 
-
+# Create agents on fixed list, later to be replaced by model_prompts.keys
 all_agents = {}
-all_agents["simple"] = agent
+for agent_name in ["simple", "detect", "abstract"]:
+    all_agents[agent_name] = create_agent(
+        base_llm,
+        system_prompt=model_prompts.get(agent_name, ""),
+        tools=None, #Will add tools later
+        name=agent_name
+    )
 
