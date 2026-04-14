@@ -5,7 +5,7 @@ import time
 from flask import jsonify, request
 from flask_cors import CORS
 
-from logging import log_to_file
+from loggingfunctions import log_to_file
 from serverfunctions import define_post_routes, post_function_output
 
 

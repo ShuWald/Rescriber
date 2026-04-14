@@ -6,7 +6,7 @@ import time # Needed?
 import threading
 import os
 import requests
-from logging import set_log
+from loggingfunctions import set_log
 from serverfunctions import initialize_agent_handlers 
 from legacyfunctions import test_functions
 from agents import all_agents 

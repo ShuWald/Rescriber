@@ -36,8 +36,9 @@ def set_log(base_log_file_path=None):
     return default_log
 
 
+# Helps determing the route log paths
 def _get_route_log_path(main_log_path, route):
-    """Generate route-specific log file path from main log path."""
+
     directory = os.path.dirname(main_log_path)
     filename = os.path.basename(main_log_path)
     stem, ext = os.path.splitext(filename)
@@ -48,15 +49,15 @@ def _get_route_log_path(main_log_path, route):
     return os.path.join(directory, f"{route_stem}{ext or '.log'}")
 
 
-def log_to_file(message, log_file=None, print_too=True, route=None):
-    """Log a message to file and optionally to console and route-specific log.
-
-    Args:
+# Log a message to a file, with defaults for printing and route-specific logging
+    """ Args:
         message: The log message.
         log_file: Optional override for the log file path.
         print_too: Whether to also print to console (default True).
         route: Optional route name to also log to route-specific file.
     """
+def log_to_file(message, log_file=None, print_too=True, route=None):
+
     active_log = log_file or default_log or set_log()
     os.makedirs(os.path.dirname(active_log), exist_ok=True)
     with open(active_log, "a") as f:
