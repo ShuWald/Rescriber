@@ -35,7 +35,7 @@ default_detect_prompt = '''You an expert in cybersecurity and data privacy. You 
 
 #Insert functionality here to decide best detect prompt
 
-detect_prompt = default_detect_prompt # The detect prompt to use
+final_detect_prompt = default_detect_prompt # The detect prompt to use
 
 def detect_prompt():
-    return detect_prompt
+    return final_detect_prompt
