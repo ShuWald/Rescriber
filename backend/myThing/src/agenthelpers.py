@@ -3,9 +3,8 @@
 import json
 import re
 
-
+# Normalizes message content (string/list/dict) to plain text for processing by extraction and streaming logic.
 def _content_to_text(content):
-    """Normalize message content payloads into plain text."""
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -22,28 +21,25 @@ def _content_to_text(content):
         return ""
     return str(content)
 
-# Extracts text from agent response payload
-def extract_agent_text(agent_response):
 
+# Extracts assistant message text from LangChain response dict; used by streaming and non-streaming paths for logging and JSON parsing.
+def _extract_response_text(agent_response):
     if isinstance(agent_response, str):
         return agent_response
 
     if isinstance(agent_response, dict):
         messages = agent_response.get("messages")
         if isinstance(messages, list) and messages:
-            # Prefer assistant/AI message content when available.
             for message in reversed(messages):
                 msg_type = type(message).__name__.lower()
                 role = getattr(message, "role", None)
-                content = getattr(message, "content", None)
+                content = _content_to_text(getattr(message, "content", None))
                 if content and ("ai" in msg_type or role == "assistant"):
-                    return str(content)
+                    return content
 
-            # Fallback to last message content if no assistant message was identified.
             last_message = messages[-1]
-            content = getattr(last_message, "content", None)
-            if content:
-                return str(content)
+            return _content_to_text(getattr(last_message, "content", None))
+
         return json.dumps(agent_response, default=str)
 
     return str(agent_response)
@@ -101,36 +97,18 @@ def extract_results_json(agent_text, agent_name, logger=None, fallback_on_failur
     warning_msg = f"[AGENT:{agent_name}] WARNING: Could not extract structured JSON results"
     if logger is not None:
         logger(warning_msg)
-
     if not fallback_on_failure:
         return None
-
     return {"results": [{"agent": agent_name, "text": text}]}
 
 
-# Invokes a langchain agent and extracts json results for response output
-def invoke_agent(agent, agent_name, message, logger=None):
-
-    raw = agent.invoke({"messages": [{"role": "user", "content": message}]})
-    raw_text = str(raw)
-    if logger is not None:
-        logger(f"[AGENT:{agent_name}] Raw response: {raw_text}")
-
-    # Extract text from response, currently for no purpose other than logging
-    agent_text = extract_agent_text(raw)
-    if logger is not None:
-        logger(f"[AGENT:{agent_name}] Extracted text response: {agent_text}")
-
-    return extract_results_json(agent_text, agent_name, logger=logger)
-
-
 def invoke_agent_stream(agent, agent_name, message, logger=None):
-    """Yield structured JSON snapshots from an agent stream as they become parseable."""
-
     emitted_signature = None
     accumulated_text = ""
     latest_text = ""
 
+    # Deduplication latch to only emit when we parse a complete, new JSON object from the stream
+    # This prevents emitting malformed/incomplete JSON on intermediate chunks
     def _emit_if_new(parsed_obj):
         nonlocal emitted_signature
         if not isinstance(parsed_obj, dict) or "results" not in parsed_obj:
@@ -141,17 +119,10 @@ def invoke_agent_stream(agent, agent_name, message, logger=None):
         emitted_signature = signature
         return parsed_obj
 
-    try:
-        stream_iter = agent.stream(
-            {"messages": [{"role": "user", "content": message}]},
-            stream_mode="updates",
-        )
-    except Exception as stream_error:
-        if logger is not None:
-            logger(f"[AGENT:{agent_name}] Stream setup failed, falling back to invoke: {type(stream_error).__name__}: {stream_error}")
-        final_obj = invoke_agent(agent, agent_name, message, logger=logger)
-        yield final_obj
-        return
+    stream_iter = agent.stream(
+        {"messages": [{"role": "user", "content": message}]},
+        stream_mode="updates",
+    )
 
     for update in stream_iter:
         if not isinstance(update, dict):
@@ -182,6 +153,10 @@ def invoke_agent_stream(agent, agent_name, message, logger=None):
                 accumulated_text = content
                 candidate_text = content
 
+            # NOTE: Streaming models may chunk mid-JSON causing malformed outputs
+            # Solution: Multiple parsing strategies? 
+            # Deduplication latch (_emit_if_new) only emits when we parse a *complete, new* JSON object.
+            # Forcing structured outputs would guarantee no malformed JSON
             parsed = extract_results_json(
                 candidate_text,
                 agent_name,
@@ -193,11 +168,29 @@ def invoke_agent_stream(agent, agent_name, message, logger=None):
                 yield maybe_emit
 
     final_text = latest_text or accumulated_text
-    if final_text:
-        final_obj = extract_results_json(final_text, agent_name, logger=logger)
-    else:
-        final_obj = {"results": []}
-
+    final_obj = extract_results_json(final_text, agent_name, logger=logger) if final_text else {"results": []}
     maybe_emit_final = _emit_if_new(final_obj)
     if maybe_emit_final is not None:
         yield maybe_emit_final
+
+
+# Invokes a langchain agent and extracts json results for response output
+def invoke_agent(agent, agent_name, message, logger=None, streaming=False):
+
+    if streaming:
+        # Returning a generator does NOT execute its body immediately.
+        # Execution starts when the caller iterates over the returned object.
+        # This keeps stream production lazy and non-blocking for Flask responses.
+        return invoke_agent_stream(agent, agent_name, message, logger=logger)
+
+    raw = agent.invoke({"messages": [{"role": "user", "content": message}]})
+    raw_text = str(raw)
+    if logger is not None:
+        logger(f"[AGENT:{agent_name}] Raw response: {raw_text}")
+
+    
+    agent_text = _extract_response_text(raw)
+    if logger is not None:
+        logger(f"[AGENT:{agent_name}] Extracted text response: {agent_text}")
+
+    return extract_results_json(agent_text, agent_name, logger=logger)
