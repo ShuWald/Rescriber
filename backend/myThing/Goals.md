@@ -49,3 +49,12 @@ Possible approaches:
 \- Additional tools for logging prompts, outputs, scores into text files for further evaluation
 \- Optimized prompting model: Creates self-feedback loop with action decider and scorer to find most optimal prompts
     \- Feedback loop uses aggregates to determine average scores for reliability
+
+4\. Optimizer: Optimizes model prompts based on their scores
+\- Access to large file relating to prompts and corresponding scores
+
+5\. Other
+\- Discontinuing client-side streaming requests? User input streaming is good for large-copy pasted blocks, but usually typing inputs combined with the constant clientside streaming causes multiple requests to models
+    \- Cancel/discontinue older client requests when a newer one is sent, streaming of the request is still retained
+\- Switch to OllamaChat for structured JSON outputs
+\- Langchain State and Middleware for better control over inter-agentic communication (Current rerouting is inefficient and unnecessary, only implemented to preserve frontend code)

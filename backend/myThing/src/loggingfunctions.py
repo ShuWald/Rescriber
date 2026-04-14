@@ -5,13 +5,9 @@ import os
 
 default_log = None
 
-
+# Set main log file path, default is Log/<timestamp>/log_main.log
 def set_log(base_log_file_path=None):
-    """Set the main log file path used by log_to_file.
 
-    Default format is Log/<timestamp>/log_main.log.
-    Also ensures legacy log.txt exists in top-level Log directory.
-    """
     global default_log
     if base_log_file_path is None:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
