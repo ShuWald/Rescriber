@@ -90,11 +90,6 @@ def reroute_to_route(route_name, message, base_url="https://localhost:5331", sou
     target_url = f"{base_url.rstrip('/')}/{route_name.lstrip('/')}"
     payload = {"message": message}
     log_to_file(
-        f"[REROUTE:{source_route}->{route_name}] Base reroute invoked",
-        print_too=True,
-        route=source_route,
-    )
-    log_to_file(
         f"[REROUTE:{source_route}->{route_name}] Posting to {target_url}",
         route=source_route,
     )

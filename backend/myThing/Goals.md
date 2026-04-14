@@ -53,7 +53,12 @@ Possible approaches:
 4\. Optimizer: Optimizes model prompts based on their scores
 \- Access to large file relating to prompts and corresponding scores
 
-5\. Other
+5\. Issues
+\- Inconsistent highlights issue? Frontend doesn't always pick up on outputs
+    \- Likely due to current parser + non structured inputs
+\- Timeout throws forntend disconnect error, persists?
+
+6\. Other
 \- Discontinuing client-side streaming requests? User input streaming is good for large-copy pasted blocks, but usually typing inputs combined with the constant clientside streaming causes multiple requests to models
     \- Cancel/discontinue older client requests when a newer one is sent, streaming of the request is still retained
 \- Switch to OllamaChat for structured JSON outputs
