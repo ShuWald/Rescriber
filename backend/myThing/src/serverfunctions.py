@@ -61,6 +61,14 @@ def handle_streaming_agent_response(agent_obj, name, msg):
                     abstract_thread = threading.Thread(target=abstract_rerouteroutelogic, args=(latest_response, msg), daemon=True)
                     abstract_thread.start()
 
+                    log_to_file(
+                        f"[DECIDER->SCORER] Streaming chunk observed; launching reroute with results={len(latest_response.get('results', [])) if isinstance(latest_response, dict) else 'n/a'}",
+                        print_too=True,
+                        route="decider",
+                    )
+                    scorer_thread = threading.Thread(target=scorer_rerouteroutelogic, args=(latest_response, msg), daemon=True)
+                    scorer_thread.start()
+
                 # Frontend stream parser expects newline-delimited JSON objects.
                 # Keep the trailing '\n' so ondevice.js can flush a complete line immediately.
                 yield json.dumps(partial_response, ensure_ascii=True) + "\n"
@@ -220,6 +228,37 @@ def abstract_rerouteroutelogic(decider_response, decider_input_message, base_url
     )
     reroute_to_route("abstract", message, base_url=base_url, source_route="decider")
 
+def scorer_rerouteroutelogic(decider_response, decider_input_message, base_url="https://localhost:5331"):
+    results = []
+    if isinstance(decider_response, dict):
+        raw_results = decider_response.get("results", [])
+        if isinstance(raw_results, list):
+            results = raw_results
+
+    log_to_file(
+        f"[DECIDER->SCORER] Preparing scorer payload with {len(results)} result item(s)",
+        print_too=True,
+        route="decider",
+    )
+
+    scorer_payload = {
+        "decider_input_message": str(decider_input_message),
+        "results": results,
+    }
+
+    try:
+        message = json.dumps(scorer_payload, ensure_ascii=True)
+    except TypeError:
+        log_to_file(
+            "[DECIDER->SCORER] WARNING: Failed to serialize scorer payload to JSON, falling back to string",
+            print_too=True,
+            route="decider",
+        )
+        message = str(scorer_payload)
+
+    log_to_file("[DECIDER->SCORER] Rerouting decider output to scorer", print_too=True, route="decider")
+    reroute_to_route("scorer", message, base_url=base_url, source_route="decider")
+
 
 # Flexibly defines POST routes based on a provided dictionary of agents
 def initialize_agent_handlers(app, all_agents, enable_streaming=True):
@@ -250,6 +289,9 @@ def initialize_agent_handlers(app, all_agents, enable_streaming=True):
                 # Fire off abstract reroute in background thread (non-blocking) using decider output
                 abstract_thread = threading.Thread(target=abstract_rerouteroutelogic, args=(response, msg), daemon=True)
                 abstract_thread.start()
+
+                scorer_thread = threading.Thread(target=scorer_rerouteroutelogic, args=(response, msg), daemon=True)
+                scorer_thread.start()
 
             # response is now {"results": [...]} structure from invoke_agent
             log_to_file(f"[AGENT:{name}] Final results: {response}", print_too=True, route=name)

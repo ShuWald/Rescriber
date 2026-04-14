@@ -59,40 +59,16 @@ def extract_results_json(agent_text, agent_name, logger=None, fallback_on_failur
 
     text = str(agent_text)
 
-    # First try direct JSON parsing.
-    try:
-        parsed = json.loads(text)
-        if isinstance(parsed, dict) and "results" in parsed:
-            return parsed
-    except (json.JSONDecodeError, TypeError):
-        pass
-
-    # Next, try JSON code blocks (```json ... ``` or ``` ... ```).
-    code_block_matches = re.findall(r"```(?:json)?\s*([\s\S]*?)\s*```", text, flags=re.IGNORECASE)
-    for block in code_block_matches:
+    # Keep parser intentionally simple: trim to the first '{' and last '}' and parse that slice.
+    match = re.search(r"\{[\s\S]*\}", text)
+    if match:
+        candidate = match.group(0).strip()
         try:
-            parsed = json.loads(block)
+            parsed = json.loads(candidate)
             if isinstance(parsed, dict) and "results" in parsed:
                 return parsed
-        except json.JSONDecodeError:
-            continue
-
-    # Then try to pull out the first JSON object from surrounding prose.
-    match = re.search(r"\{[\s\S]*?\}", text)
-    if match:
-        # Try progressively larger objects starting at each '{'.
-        starts = [m.start() for m in re.finditer(r"\{", text)]
-        for start in starts:
-            for end in range(len(text), start, -1):
-                candidate = text[start:end].strip()
-                if not candidate.endswith("}"):
-                    continue
-                try:
-                    parsed = json.loads(candidate)
-                    if isinstance(parsed, dict) and "results" in parsed:
-                        return parsed
-                except json.JSONDecodeError:
-                    continue
+        except (json.JSONDecodeError, TypeError):
+            pass
 
     warning_msg = f"[AGENT:{agent_name}] WARNING: Could not extract structured JSON results"
     if logger is not None:

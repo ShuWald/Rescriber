@@ -42,7 +42,7 @@ base_llm = init_chat_model(
 
 # Create agents on fixed list, later to be replaced by model_prompts.keys
 all_agents = {}
-for agent_name in ["simple", "detect", "abstract", "decider"]:
+for agent_name in ["simple", "detect", "abstract", "decider", "scorer"]:
     all_agents[agent_name] = create_agent(
         base_llm,
         system_prompt=model_prompts.get(agent_name, ""),
